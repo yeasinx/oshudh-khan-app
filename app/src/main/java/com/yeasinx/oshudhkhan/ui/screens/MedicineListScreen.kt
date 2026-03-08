@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.data.Medicine
+import com.yeasinx.oshudhkhan.notification.NotificationHelper
 import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
 import com.yeasinx.oshudhkhan.ui.components.MedicineCard
 
@@ -25,6 +26,8 @@ fun MedicineListScreen(
 ) {
     val medicines by viewModel.medicine.collectAsState()
     var medicineToDelete by remember { mutableStateOf<Medicine?>(null) }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Scaffold(
         topBar = {
@@ -55,60 +58,77 @@ fun MedicineListScreen(
             )
         }
     ) { paddingValues ->
-
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (medicines.isEmpty()) {
-                // Empty state
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MedicalServices,
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp),
-                        tint = MaterialTheme.colorScheme.outline
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "No medicines yet",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Tap the button below to add your first medicine.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.outline,
-                        textAlign = TextAlign.Center
+            Button(
+                onClick = {
+                    NotificationHelper.showMedicineNotification(
+                        context = context,
+                        notificationId = 999,
+                        medicineName = "Test Medicine",
+                        dosage = "1 Tablet"
                     )
                 }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 16.dp,
-                        bottom = 88.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = medicines,
-                        key = { it.id }
-                    ) { medicine ->
-                        MedicineCard(
-                            medicine = medicine,
-                            onToggleActive = { viewModel.toggleActive(it) },
-                            onDelete = { medicineToDelete = it }
+            ) {
+                Text("Test Notification")
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (medicines.isEmpty()) {
+                    // Empty state
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MedicalServices,
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp),
+                            tint = MaterialTheme.colorScheme.outline
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No medicines yet",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Tap the button below to add your first medicine.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.outline,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp,
+                            bottom = 88.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = medicines,
+                            key = { it.id }
+                        ) { medicine ->
+                            MedicineCard(
+                                medicine = medicine,
+                                onToggleActive = { viewModel.toggleActive(it) },
+                                onDelete = { medicineToDelete = it }
+                            )
+                        }
                     }
                 }
             }
