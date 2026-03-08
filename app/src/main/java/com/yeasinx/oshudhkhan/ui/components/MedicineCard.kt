@@ -68,7 +68,7 @@ fun MedicineCard(
                }
                Switch(
                    checked = medicine.isActive,
-                   onCheckedChange = { onToggleActive(medicine)},
+                   onCheckedChange = { onToggleActive(medicine) },
                )
            }
 
@@ -133,10 +133,15 @@ fun MedicineCard(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onError
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Delete")
+                    Text(
+                        text = "Delete",
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onError
+                    )
                 }
             }
         }
