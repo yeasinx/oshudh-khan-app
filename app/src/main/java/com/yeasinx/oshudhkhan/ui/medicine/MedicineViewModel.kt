@@ -43,7 +43,7 @@ class MedicineViewModel(
 
     fun toggleActive(medicine: Medicine) {
         viewModelScope.launch {
-            val updated = medicine.copy(isActive = !isActive)
+            val updated = medicine.copy(isActive = !medicine.isActive)
             repository.update(updated)
             if (updated.isActive) {
                 AlarmScheduler.scheduleMedicineAlarms(appContext, updated)
