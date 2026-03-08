@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import com.yeasinx.oshudhkhan.data.FrequencyType
 import com.yeasinx.oshudhkhan.data.Medicine
 import java.util.Calendar
@@ -22,10 +23,19 @@ object AlarmScheduler {
 
             val requestCode = medicine.id * 100 + index
 
+            val intervalDays = when (medicine.frequencyType) {
+                FrequencyType.DAILY -> 1
+                FrequencyType.EVERY_N_DAYS -> medicine.intervalDays
+            }
+
             val intent = Intent(context, AlarmReceiver::class.java).apply {
                 putExtra(AlarmReceiver.EXTRA_MEDICINE_ID, medicine.id)
                 putExtra(AlarmReceiver.EXTRA_MEDICINE_NAME, medicine.name)
                 putExtra(AlarmReceiver.EXTRA_MEDICINE_DOSAGE, medicine.dosage)
+                putExtra(AlarmReceiver.EXTRA_HOUR, hour)
+                putExtra(AlarmReceiver.EXTRA_MINUTE, minute)
+                putExtra(AlarmReceiver.EXTRA_INTERVAL_DAYS, intervalDays)
+                putExtra(AlarmReceiver.EXTRA_REQUEST_CODE, requestCode)
             }
 
             val pendingIntent = PendingIntent.getBroadcast(
@@ -45,17 +55,21 @@ object AlarmScheduler {
                 }
             }
 
-            val intervalMillis = when (medicine.frequencyType) {
-                FrequencyType.DAILY -> AlarmManager.INTERVAL_DAY
-                FrequencyType.EVERY_N_DAYS -> AlarmManager.INTERVAL_DAY * medicine.intervalDays
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                }
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
             }
-
-            alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                intervalMillis,
-                pendingIntent
-            )
         }
     }
 
